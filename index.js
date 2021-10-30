@@ -17,12 +17,13 @@ const port = process.env.port || 5000;
 //Nihal mongoDB => user:apartmentHuntUser, pass: abcd1234, DB-Name: apartmentHunt;
 
 const MongoClient = require('mongodb').MongoClient;
-const uri ="mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.5f7tq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.5f7tq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-client.connect(err => {
+client.connect(err => { 
   console.log('db connected');
-  const bookingCollection = client.db("apartmentHunt").collection("bookings");
+  const bookingCollection = client.db("infiniteTourism").collection("touristSpots");
 
   app.post('/addBooking', (req, res) => {
     const name = req.body.name;
@@ -62,7 +63,7 @@ client.connect(err => {
       .then(result => res.send(result.modifiedCount > 0))
   });
 
-  const apartmentCollection = client.db("apartmentHunt").collection("apartments");
+  const apartmentCollection = client.db("infiniteTourism").collection("services");
 
   app.post('/addNewApartment', (req, res) => {
     const file = req.files.file;
