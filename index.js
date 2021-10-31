@@ -7,14 +7,15 @@ const ObjectId = require('mongodb').ObjectID;
 
 
 const app = express();
+app.use(bodyParser.json());
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 app.use(cors());
-app.use(express.static('apartmentImage'));
+app.use(express.static('spotImage'));
 app.use(fileUpload());
 
 const port = process.env.port || 5000;
 
-//Nihal mongoDB => user:apartmentHuntUser, pass: abcd1234, DB-Name: apartmentHunt;
 
 const MongoClient = require('mongodb').MongoClient;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.5f7tq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -30,11 +31,11 @@ client.connect(err => {
     const number = req.body.number;
     const email = req.body.email;
     const message = req.body.message;
-    const house = req.body.house;
+    const spot = req.body.spot;
     const price = req.body.price;
     const status = req.body.status;
 
-    bookingCollection.insertOne({ name, number, email, message, house, price, status })
+    bookingCollection.insertOne({ name, number, email, message, spot, price, status })
       .then(result => {
         res.send(result.insertedCount > 0)
       })
@@ -63,26 +64,18 @@ client.connect(err => {
       .then(result => res.send(result.modifiedCount > 0))
   });
 
-  const apartmentCollection = client.db("infiniteTourism").collection("services");
+  const spotCollection = client.db("infiniteTourism").collection("services");
 
-  app.post('/addNewApartment', (req, res) => {
+  app.post('/addNewSpot', (req, res) => {
     const file = req.files.file;
     const title = req.body.title;
     const price = req.body.price;
-    const location = req.body.location;
-    const bedroom = req.body.bedroom;
-    const bathroom = req.body.bathroom;
+    const location = req.body.places;
+    const bedroom = req.body.duration;
+    const bathroom = req.body.rating;
 
-    const newImg = file.data;
-    const encImg = newImg.toString('base64');
 
-    const image = {
-      contentType: file.mimetype,
-      size: file.size,
-      img: Buffer.from(encImg, 'base64')
-    };
-
-    apartmentCollection.insertOne({ title, price, location, bedroom, bathroom, image })
+      spotCollection.insertOne({ title, price, places, duration, packageRating,image})
       .then(result => {
         res.send(result.insertedCount > 0)
       })
@@ -91,8 +84,8 @@ client.connect(err => {
       });
   });
 
-  app.get('/apartments', (req, res) => {
-    apartmentCollection.find({})
+  app.get('/spots', (req, res) => {
+    spotCollection.find({})
       .toArray((err, docs) => res.send(docs));
   });
 
@@ -100,7 +93,7 @@ client.connect(err => {
 
 
 app.get('/', (req, res) => {
-  res.send('Apartment Hunt Server')
+  res.send('Infinite Tourism Server')
 });
 
 app.listen(port,()=>{
